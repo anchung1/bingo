@@ -1,6 +1,6 @@
 var React = require('react');
 
-var SampleComponent = React.createClass({
+var SampleContainer = React.createClass({
 
     render: function(){
         console.log('sample component');
@@ -12,4 +12,4 @@ var SampleComponent = React.createClass({
     }
 });
 
-module.exports = SampleComponent;
+module.exports = SampleContainer;
