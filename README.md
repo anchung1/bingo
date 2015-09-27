@@ -3,7 +3,7 @@
 Steps to use this template: <br/>
 1) git clone https://github.com/anchung1/reactTemplate.git <some ws> <br/>
 2) on github, create another repository (say sampleProj) for future commits.  Template is for init only and no commits should go into it. <br/>
-3) from <some ws>, change the remote to point to repo from step 2) <br/>
+3) from some ws, change the remote to point to repo from step 2) <br/>
   -- git remote set-url origin https://github.com/anchung1/sampleProj.git <br/>
   -- git remote -v to verify <br/>
   -- git pull to sync <some ws> with new remote <br/>
