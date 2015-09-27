@@ -9,6 +9,19 @@ Steps to use this template: <br/>
   -- git pull to sync <some ws> with new remote <br/>
   -- git push to put templates into new repo <br/>
   
+Post git setup:  
+4) from someWs/, run 'npm install' <br/>
+5) from someWs/dist/, run 'bower install' <br/>
+6) from someWs/, run 'gulp' <br/>
+<br/>
+Steps not shown:
+Have a node/express server serve up static files from someWs/dist/  <br/>
+Have a look at: https://github.com/anchung1/flickrExp.git.  <br/>
+----from app.js: app.use(express.static(path.resolve(__dirname,'..', 'flickr1/dist'))); <br/>
+----replace 'flickr1/dist' with 'someWs/dist'  <br/>
+<br/>
+<br/>
+<br/>  
 References: <br/>
 1) https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/ <br/>
 2) https://help.github.com/articles/changing-a-remote-s-url/ <br/>
