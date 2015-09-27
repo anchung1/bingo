@@ -1,5 +1,5 @@
 var React = require('react');
-var SampleContainer = require('./components/SampleComponent');
+var SampleContainer = require('./components/SampleContainer');
 
 
 var App = React.createClass({
@@ -7,7 +7,7 @@ var App = React.createClass({
         return (
             <div className="container">
                 <div className="row">
-                    <SampleComponent></SampleComponent>
+                    <SampleContainer></SampleContainer>
                 </div>
             </div>
         )
