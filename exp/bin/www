@@ -27,6 +27,8 @@ app.set('port', port);
  */
 
 var server = https.createServer(options, app);
+var websock = new (require('../js/websock'))(server);
+
 
 /**
  * Listen on provided port, on all network interfaces.

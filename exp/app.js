@@ -24,7 +24,7 @@ app.use(cookieParser(credentials.cookieSecret)); //credentials.cookieSecret
 app.use(express.static(path.join(__dirname, 'public')));
 
 console.log('IN APP JS');
-console.log(path.resolve(__dirname,'..', 'reactapp/dist'));
+console.log(path.resolve(__dirname,'..', 'app/dist'));
 app.use(express.static(path.resolve(__dirname,'..', 'app/dist')));
 
 //app.use('/', routes);

@@ -1,5 +1,6 @@
 var React = require('react');
 var SampleContainer = require('./components/SampleContainer');
+var WebSocket = require('./components/WebSocket');
 
 
 var App = React.createClass({
@@ -7,6 +8,7 @@ var App = React.createClass({
         return (
             <div className="container">
                 <div className="row">
+                    <WebSocket></WebSocket>
                     <SampleContainer></SampleContainer>
                 </div>
             </div>
