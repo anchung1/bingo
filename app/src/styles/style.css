@@ -1,0 +1,29 @@
+#sc {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: space-between;
+
+    margin: 10px;
+}
+
+#sc button {
+    align-self: center;
+    height: 25px;
+}
+
+#sc ul {
+    width: 100%;
+    background-color: #985f0d;
+    padding: 0px;
+}
+
+#sc ul li {
+    padding: 10px;
+    background-color: ghostwhite;
+    cursor: pointer;
+}
+
+#sc ul li:hover {
+    background-color: #00d6b2;
+}
