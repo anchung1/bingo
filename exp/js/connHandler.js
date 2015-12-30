@@ -1,14 +1,21 @@
 var _ = require('lodash');
+var Log = require('./log');
+
+var logger = new Log('testlog.log');
 
 
-function RoomControl() {
+
+function ConnHandler() {
 
     var sockets = [];
 
     function printSocketList() {
+        logger.log('Start printSocketList:');
         sockets.forEach(function(s) {
-            console.log(s.id);
-        })
+            logger.log(s.id);
+        });
+
+        logger.log('End printSocketList');
     }
 
     this.saveSocket = function(socket) {
@@ -20,7 +27,7 @@ function RoomControl() {
             sockets.push({socket: socket, id: socket.id});
         }
 
-        printSocketList();
+        logger.log('add: ' + socket.id);
     };
 
     this.removeSocket = function(socket) {
@@ -30,6 +37,7 @@ function RoomControl() {
             return (sock.id === socket.id);
         });
 
+        logger.log('remove: ' + socket.id);
         printSocketList();
     };
 
@@ -39,4 +47,4 @@ function RoomControl() {
 }
 
 
-module.exports = RoomControl;
+module.exports = ConnHandler;

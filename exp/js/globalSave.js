@@ -1,5 +1,3 @@
-var Rooms = require('ro')
-
 'use strict';
 
 

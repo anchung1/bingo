@@ -2,24 +2,24 @@
 
 function sockHandler(io) {
 
-    var rctrl = new (require('./roomControl'));
+    var chdlr = new (require('./connHandler'));
 
     this.roomControl = function() {
-        return rctrl;
+        return chdlr;
     };
 
     io.on('connection', function(socket) {
 
 
         console.log('a user connected');
-        rctrl.saveSocket(socket);
+        chdlr.saveSocket(socket);
 
         console.log('emit say hello');
         io.emit('say hello', 'hello');
 
         socket.on('disconnect', function() {
             console.log('user disconnected');
-            rctrl.removeSocket(socket);
+            chdlr.removeSocket(socket);
         });
 
         socket.on('event', function(msg) {
@@ -32,7 +32,7 @@ function sockHandler(io) {
 
         socket.on('connection count', function() {
             console.log('connection count request');
-            io.emit('connection count', rctrl.numActiveConnections());
+            io.emit('connection count', chdlr.numActiveConnections());
         });
 
         socket.on('test', function() {
