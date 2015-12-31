@@ -3,15 +3,10 @@ var action = require('../actions/sampleActions');
 var socketStore = require('../stores/socketIDStore');
 var bingoStore = require('../stores/bingoStore');
 
+var RoomElem = require('./RoomElem');
+var _ = require('lodash');
 
 
-function setupWebSocket() {
-    /*socket.on('connect', function() {
-        console.log('connected');
-    });
-*/
-
-}
 
 var SampleContainer = React.createClass({
 
@@ -19,7 +14,6 @@ var SampleContainer = React.createClass({
         return {
             sid: '',
             userName: 'Nick',
-            currentRoom: '',
             rooms: []
         };
     },
@@ -48,41 +42,64 @@ var SampleContainer = React.createClass({
     _bingoCB: function() {
         var rooms = bingoStore.getRooms();
 
+        var newRooms = rooms.map(function(elem) {
+            return ({room: elem, disabled: true});
+        });
+
+        this.setState({
+            rooms: newRooms
+        });
+
+    },
+
+    registerRoom: function(enabled) {
+        var room = bingoStore.getCurrentRoom();
+
+        var i = _.findIndex(this.state.rooms, function(elem) {
+            return (elem.room === room);
+        });
+
+
+        if ( i < 0 ) {
+            console.log('registerRoom (enabled, name) ' + enabled + ',' + room);
+            return;
+        }
+
+        var rooms = this.state.rooms;
+        rooms[i].disabled = !enabled;
         this.setState({
             rooms: rooms
         });
-
     },
 
     _joinCB: function() {
-        this.setState({
-            currentRoom: bingoStore.getCurrentRoom()
-        });
+        this.registerRoom(true);
     },
 
     _leaveCB: function() {
-        this.setState({
-            currentRoom: bingoStore.getCurrentRoom()
-        });
+        this.registerRoom(false);
     },
 
-    liClick: function(index, event) {
+    /*liClick: function(index, event) {
 
-        //console.log(event.currentTarget);
-        console.log(index);
+        /!*console.log(index);
         console.log(event.target);
-        console.log(event.currentTarget);
+        console.log(event.currentTarget);*!/
+    },*/
 
-        var roomName = this.state.rooms[index];
-        //action.joinRoom(roomName, this.state.userName, this.state.sid);
+    press: function() {
+        action.getRooms();
+    },
 
-        //var node = React.findDOMNode(this.refs.div1);
-        //console.log(this.refs.div1.getDOMNode());
+    roomClick: function(i) {
 
-        //console.log(this.refs.div1.props.children);
+        var roomName = this.state.rooms[i].room;
+        var currentRoom = bingoStore.getCurrentRoom();
 
-        if (roomName !== this.state.currentRoom) {
-            action.leaveRoom(roomName, this.state.sid);
+        if (roomName !== currentRoom) {
+            action.leaveRoom(currentRoom, this.state.sid);
+            this._leaveCB();
+
             action.joinRoom(roomName, this.state.userName, this.state.sid);
         } else {
             console.log('same room.  no leave/join performed.');
@@ -90,32 +107,28 @@ var SampleContainer = React.createClass({
 
     },
 
-    press: function() {
-        action.getRooms();
-    },
-
     render: function(){
 
         if (this.state.rooms.length) {
-            console.log('sample container render');
 
-            <roomElem></roomElem>
-           /* var rooms = this.state.rooms.map(function(item, i) {
-                var ref = "div" + i;
+           var rooms = this.state.rooms.map(function(item, i) {
+
+               var disabled = '';
+               if (item.disabled) {
+                   disabled = 'disabled';
+               }
+
                 return (
-                    <div key={i} ref={ref}>
-                        <li onClick={this.liClick.bind(this,i)}>{item}</li>
-                        <button disabled="disabled">Ready</button>
-                    </div>
+                    <RoomElem key={i} handler={this.roomClick.bind(this, i)} disabled={disabled}>{item.room}</RoomElem>
                 );
 
-            }.bind(this));*/
+            }.bind(this));
         }
 
         return (
             <div id="sc">
-                <h3>Hello World</h3>
-                <button onClick={this.press}>Rooms</button>
+                <h3>BINGO WORLD</h3>
+                <button onClick={this.press}>Check Rooms</button>
                 <ul>
                     {rooms}
                 </ul>

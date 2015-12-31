@@ -35,3 +35,11 @@
 #sc ul>div:hover {
     background-color: #00d6b2;
 }
+
+
+#sc ul>div>button {
+    color: black;
+}
+#sc ul>div>button[disabled] {
+    color: gray;
+}
