@@ -17,6 +17,26 @@ router.get('/game/rooms', function(req, res, next) {
     res.json({rooms: global.Rooms.roomList()});
 });
 
+router.post('/game/rooms', function(req, res, next) {
+    console.log('POST game rooms');
+    var global = require('./../js/globalSave');
+
+    var rooms = global.Rooms;
+    var index = rooms.join(req.body.roomName, req.body.userName, req.body.sid);
+    res.send('OK');
+
+});
+
+router.delete('/game/rooms/:roomName', function(req, res, next) {
+    console.log("DELETE game rooms");
+
+    var global = require('./../js/globalSave');
+    var rooms = global.Rooms;
+    rooms.leave(req.params.roomName, req.query.sid);
+
+    res.send('OK');
+});
+
 
 /* GET users listing. */
 router.get('/greet', function (req, res, next) {

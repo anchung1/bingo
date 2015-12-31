@@ -35,7 +35,44 @@ var sampleActions = {
             }
         );
 
+    },
+
+    joinRoom: function(roomName, userName, sid) {
+        var url = restUrl + 'api/game/rooms';
+
+        console.log('action: ' + roomName);
+        $.post(url,
+            {
+                roomName: roomName,
+                userName: userName,
+                sid: sid
+            }).then(
+            function(data) {
+                AppDispatcher.handleAction({
+                    actionType: appConstants.JOIN_ROOM,
+                    data: roomName
+                });
+            }
+        )
+    },
+
+    leaveRoom: function(roomName, sid) {
+        var url = restUrl + 'api/game/rooms/' + roomName + '?' + 'sid=' + sid;
+
+        $.ajax(
+            {
+                url: url,
+                type: 'DELETE'
+
+            }).then(
+            function(data) {
+            },
+            function() {
+                console.log('unable to leave room: ' + roomName);
+            }
+        )
     }
+
 };
 
 module.exports = sampleActions;

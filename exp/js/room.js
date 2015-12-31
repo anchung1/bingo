@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var Log = require('./log');
-
 var logger = new Log('testlog.log');
+
 
 function Rooms() {
 
@@ -37,9 +37,10 @@ function Rooms() {
     };
 
     this.join = function(name, username, sid) {
+
         var index = this.name2Index(name);
         if (index===undefined) {
-            logger.log('invalid room name: ' + name);
+            //logger.log('invalid room name: ' + name);
             return null;
         }
 
@@ -50,11 +51,14 @@ function Rooms() {
 
         if (sindex >=0 ) {
             //user exists
-            logger.log('user exists: ' + sid);
+            //logger.log('user exists: ' + sid);
             return null;
         }
 
+        //logger.log('join (name, username, sid): ' + name + ',' + username + ',' + sid);
+
         roomElem.socketList.push({name: name, user: username, sid: sid});
+        console.log(roomElem.socketList);
         return index;
     };
 
@@ -62,7 +66,7 @@ function Rooms() {
 
         var index = this.name2Index(roomName);
         if (index===undefined) {
-            logger.log('invalid room name: ' + roomName);
+            //logger.log('invalid room name: ' + roomName);
             return null;
         }
 
@@ -72,7 +76,8 @@ function Rooms() {
             return (elem.sid === sid);
         });
 
-
+        console.log(room.socketList);
+        //logger.log('leave (name, sid): ' + roomName + ',' + sid);
         return (removed.length);
     };
 
@@ -80,7 +85,7 @@ function Rooms() {
 
         var index = this.name2Index(roomName);
         if (index===undefined) {
-            logger.log('invalid room name: ' + roomName);
+            //logger.log('invalid room name: ' + roomName);
             return null;
         }
 

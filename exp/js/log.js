@@ -18,12 +18,14 @@ function Log(fn, newFile) {
     }
 
     this.log = function(msg) {
+
         var stack = traceback();
 
         //https://www.npmjs.com/package/traceback
        /* console.log(stack[1].name);
         console.log(stack[1].line);
         */
+
         var newMsg = "(" + stack[1].file + "." + stack[1].name + ": " + stack[1].line + ") " + msg + '\n';
         fs.appendFile(this.filename, newMsg, function(err) {
             if (err) throw err;

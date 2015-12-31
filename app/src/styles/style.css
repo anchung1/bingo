@@ -14,16 +14,24 @@
 
 #sc ul {
     width: 100%;
-    background-color: #985f0d;
     padding: 0px;
+    list-style-type: none;
+}
+
+#sc ul>div {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+    background-color: ghostwhite;
 }
 
 #sc ul li {
     padding: 10px;
-    background-color: ghostwhite;
+    /*background-color: ghostwhite;*/
     cursor: pointer;
 }
 
-#sc ul li:hover {
+
+#sc ul>div:hover {
     background-color: #00d6b2;
 }
