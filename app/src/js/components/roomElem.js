@@ -4,14 +4,14 @@ var RoomElem = React.createClass({
 
     render: function() {
 
-        var btn = <button>Ready</button>;
+        var btn = <button onClick={this.props.readyHandler}>Ready</button>;
         if (this.props.disabled === 'disabled') {
             btn = <button disabled="disabled">Ready</button>
         }
 
         return(
-            <div>
-                <li onClick={this.props.handler}>{this.props.children}</li>
+            <div onClick={this.props.handler}>
+                <li>{this.props.children}</li>
                 {btn}
             </div>
 

@@ -71,7 +71,26 @@ var sampleActions = {
                 console.log('unable to leave room: ' + roomName);
             }
         )
+    },
+
+    readyToPlay: function(roomName, sid, state) {
+        var url = restUrl + 'api/game' + '?ready=' + state;
+
+        $.post(url,
+            {
+                roomName: roomName,
+                sid: sid
+            }).then(
+            function(data) {
+
+            },
+            function() {
+                console.log('Ready not set on server.');
+            }
+        )
     }
+
+
 
 };
 

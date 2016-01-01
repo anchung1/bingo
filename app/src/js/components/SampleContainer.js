@@ -10,7 +10,7 @@ var _ = require('lodash');
 
 var SampleContainer = React.createClass({
 
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             sid: '',
             userName: 'Nick',
@@ -18,7 +18,7 @@ var SampleContainer = React.createClass({
         };
     },
 
-    componentDidMount: function() {
+    componentDidMount: function () {
         socketStore.addChangeListener(this._wsCB);
         bingoStore.addChangeListener(this._bingoCB);
         bingoStore.joinListener(this._joinCB);
@@ -27,7 +27,7 @@ var SampleContainer = React.createClass({
 
     },
 
-    componentWillUnmount: function() {
+    componentWillUnmount: function () {
         socketStore.removeChangeListener(this._wsCB);
 
         bingoStore.addChangeListener(this._bingoCB);
@@ -35,14 +35,14 @@ var SampleContainer = React.createClass({
         bingoStore.leaveRemoveListener(this._leaveCB);
     },
 
-    _wsCB: function() {
+    _wsCB: function () {
         this.state.sid = socketStore.getID();
     },
 
-    _bingoCB: function() {
+    _bingoCB: function () {
         var rooms = bingoStore.getRooms();
 
-        var newRooms = rooms.map(function(elem) {
+        var newRooms = rooms.map(function (elem) {
             return ({room: elem, disabled: true});
         });
 
@@ -52,15 +52,15 @@ var SampleContainer = React.createClass({
 
     },
 
-    registerRoom: function(enabled) {
+    registerRoom: function (enabled) {
         var room = bingoStore.getCurrentRoom();
 
-        var i = _.findIndex(this.state.rooms, function(elem) {
+        var i = _.findIndex(this.state.rooms, function (elem) {
             return (elem.room === room);
         });
 
 
-        if ( i < 0 ) {
+        if (i < 0) {
             console.log('registerRoom (enabled, name) ' + enabled + ',' + room);
             return;
         }
@@ -72,26 +72,26 @@ var SampleContainer = React.createClass({
         });
     },
 
-    _joinCB: function() {
+    _joinCB: function () {
         this.registerRoom(true);
     },
 
-    _leaveCB: function() {
+    _leaveCB: function () {
         this.registerRoom(false);
     },
 
     /*liClick: function(index, event) {
 
-        /!*console.log(index);
-        console.log(event.target);
-        console.log(event.currentTarget);*!/
-    },*/
+     /!*console.log(index);
+     console.log(event.target);
+     console.log(event.currentTarget);*!/
+     },*/
 
-    press: function() {
+    press: function () {
         action.getRooms();
     },
 
-    roomClick: function(i) {
+    roomClick: function (i) {
 
         var roomName = this.state.rooms[i].room;
         var currentRoom = bingoStore.getCurrentRoom();
@@ -107,19 +107,26 @@ var SampleContainer = React.createClass({
 
     },
 
-    render: function(){
+    readyClick: function(i, event) {
+        event.stopPropagation();
+        var roomName = this.state.rooms[i].room;
+
+        action.readyToPlay(roomName, this.state.sid, true);
+    },
+
+    render: function () {
 
         if (this.state.rooms.length) {
 
-           var rooms = this.state.rooms.map(function(item, i) {
+            var rooms = this.state.rooms.map(function (item, i) {
 
-               var disabled = '';
-               if (item.disabled) {
-                   disabled = 'disabled';
-               }
+                var disabled = '';
+                if (item.disabled) {
+                    disabled = 'disabled';
+                }
 
                 return (
-                    <RoomElem key={i} handler={this.roomClick.bind(this, i)} disabled={disabled}>{item.room}</RoomElem>
+                    <RoomElem key={i} handler={this.roomClick.bind(this, i)} readyHandler={this.readyClick.bind(this, i)} disabled={disabled}>{item.room}</RoomElem>
                 );
 
             }.bind(this));
@@ -133,8 +140,9 @@ var SampleContainer = React.createClass({
                     {rooms}
                 </ul>
             </div>
-        )
+        );
     }
+
 });
 
 module.exports = SampleContainer;

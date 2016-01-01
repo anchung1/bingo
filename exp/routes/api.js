@@ -37,6 +37,20 @@ router.delete('/game/rooms/:roomName', function(req, res, next) {
     res.send('OK');
 });
 
+router.post('/game', function(req, res, next) {
+
+    var state = req.query.ready;
+    var global = require('./../js/globalSave');
+    var rooms = global.Rooms;
+
+    console.log('POST game ready: ' + state);
+    if (rooms.ready(req.body.roomName, req.body.sid, state)) {
+        res.send('OK');
+    } else {
+        next('Game not ready');
+    }
+});
+
 
 /* GET users listing. */
 router.get('/greet', function (req, res, next) {

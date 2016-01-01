@@ -43,6 +43,10 @@ function ConnHandler() {
 
     this.numActiveConnections = function() {
         return sockets.length;
+    };
+
+    this.getSockets = function() {
+        return sockets;
     }
 }
 

@@ -2,4 +2,5 @@
 
 
 var Rooms = undefined;
-module.exports = {Rooms: Rooms};
+var connHandler = undefined;
+module.exports = {Rooms: Rooms, connHandler: connHandler};

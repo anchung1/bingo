@@ -16,6 +16,7 @@
     width: 100%;
     padding: 0px;
     list-style-type: none;
+
 }
 
 #sc ul>div {
@@ -23,12 +24,14 @@
     justify-content: space-between;
     padding: 0 10px;
     background-color: ghostwhite;
+    cursor: pointer;
+
 }
 
 #sc ul li {
     padding: 10px;
     /*background-color: ghostwhite;*/
-    cursor: pointer;
+
 }
 
 

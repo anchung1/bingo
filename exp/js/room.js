@@ -7,11 +7,11 @@ function Rooms() {
 
 
     var rooms = [
-        {name: 'Dora', socketList: []},
-        {name: 'Boots', socketList: []},
-        {name: 'Diego', socketList:[]},
-        {name: 'Benny', socketList: []},
-        {name: 'Tico', socketList: []}
+        {name: 'Dora', socketList: [], readyCount: 0},
+        {name: 'Boots', socketList: [], readyCount: 0},
+        {name: 'Diego', socketList:[], readyCount: 0},
+        {name: 'Benny', socketList: [], readyCount: 0},
+        {name: 'Tico', socketList: [], readyCount: 0}
     ];
 
     this.name2Index = function(name) {
@@ -95,6 +95,93 @@ function Rooms() {
 
         return names;
     };
+
+    this.ready = function(roomName, sid, ready) {
+        console.log('room ready');
+        var index = this.name2Index(roomName);
+        if (index===undefined) {
+            //logger.log('invalid room name: ' + roomName);
+            console.log('no such room: ' + roomName);
+            return null;
+        }
+
+        var room = rooms[index];
+        console.log(room);
+        //check if sid is member of this room
+        index = _.findIndex(room.socketList, function(elem) {
+            console.log(elem);
+            return (elem.sid === sid);
+        });
+
+        if (index < 0) {
+            console.log('no such member: ' + sid);
+            return null;
+        }
+
+        if (ready) {
+            room.readyCount++;
+            this.setupBroadcast(room);
+        } else {
+            room.readyCount--;
+        }
+        return 1;
+    };
+
+    this.setupBroadcast = function(room) {
+
+        if (room.readyCount < 2) {
+            return;
+        }
+
+        var values = ['b4', 'i23', 'n40', 'g58', 'o62'];
+        var roomSockets = [];
+
+        var global = require('./globalSave');
+        var chdlr = global.connHandler;
+        var sockets = chdlr.getSockets();
+
+
+        room.socketList.forEach(function(elem) {
+             var index = _.findIndex(sockets, function(elem1) {
+                 return (elem1.id === elem.sid);
+             });
+
+            console.log(sockets[index].id);
+            roomSockets.push(sockets[index].socket);
+        });
+
+
+        if (room.readyCount === room.socketList.length) {
+            console.log('starting game');
+            setTimeout(testFnc, 1000, [roomSockets, values, 0]);
+        }
+
+    };
+
+    function testFnc(list) {
+        var sidList = list[0];
+
+        console.log('firing testFnc');
+
+        var sockets = list[0];
+        var values = list[1];
+        var index = list[2];
+
+
+
+        //console.log(sockets[0]);
+        //sockets[0].emit('test values', 'B23');
+        sockets.forEach(function(elem) {
+            elem.emit('test values', values[index]);
+        });
+
+        index++;
+        if (index < values.length) {
+            setTimeout(testFnc, 1000, [sockets, values, index]);
+        }
+
+    }
+
 }
 
 module.exports = Rooms;
