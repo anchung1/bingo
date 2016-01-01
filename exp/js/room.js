@@ -58,7 +58,7 @@ function Rooms() {
         //logger.log('join (name, username, sid): ' + name + ',' + username + ',' + sid);
 
         roomElem.socketList.push({name: name, user: username, sid: sid});
-        console.log(roomElem.socketList);
+        //console.log(roomElem.socketList);
         return index;
     };
 
@@ -76,7 +76,7 @@ function Rooms() {
             return (elem.sid === sid);
         });
 
-        console.log(room.socketList);
+        //console.log(room.socketList);
         //logger.log('leave (name, sid): ' + roomName + ',' + sid);
         return (removed.length);
     };
@@ -151,33 +151,33 @@ function Rooms() {
         });
 
 
+        var Bingo = new (require('./bingo'))();
         if (room.readyCount === room.socketList.length) {
             console.log('starting game');
-            setTimeout(testFnc, 1000, [roomSockets, values, 0]);
+            setTimeout(testFnc, 1000, [roomSockets, Bingo, 100]);
         }
 
     };
 
     function testFnc(list) {
-        var sidList = list[0];
 
-        console.log('firing testFnc');
 
         var sockets = list[0];
-        var values = list[1];
-        var index = list[2];
+        var Bingo = list[1];
+        var count = list[2];
 
+        console.log('' + count + ': firing testFnc');
 
-
-        //console.log(sockets[0]);
-        //sockets[0].emit('test values', 'B23');
+        var value = Bingo.generate();
         sockets.forEach(function(elem) {
-            elem.emit('test values', values[index]);
+            elem.emit('test values', value);
         });
 
-        index++;
-        if (index < values.length) {
-            setTimeout(testFnc, 1000, [sockets, values, index]);
+        count--;
+        if (count > 0) {
+            setTimeout(testFnc, 1000, [sockets, Bingo, count]);
+        } else {
+            console.log('testFnc done');
         }
 
     }

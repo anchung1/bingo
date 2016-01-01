@@ -40,7 +40,6 @@ function sockHandler(io) {
         socket.on('test', function() {
             var values = [1,2,3,4,5];
 
-            console.log(socket);
             //setTimeout(testFnc, 1000, [values, 0]);
             console.log('test disconnect');
         });

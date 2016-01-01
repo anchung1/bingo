@@ -2,22 +2,30 @@ var Rooms = new (require('./room'))();
 var global = require('./globalSave');
 
 //this stores rooms in the module
+console.log('BINGO HEADER');
 global.Rooms = Rooms;
 
 'use strict';
 
 function Bingo() {
 
-    var cardValue = ['Ace', 'Two', 'Three', 'Four', 'Five', 'Six',
-        'Seven', 'Eight', 'Nine', 'Ten', 'Jack', 'Queen', 'King'];
-    var suitValue = ['Spade', 'Club', 'Heart', 'Diamond'];
+    function randomInt(low, high) {
+        return Math.floor(Math.random() * (high-low+1) + low);
+    }
 
-    this.getCard = function() {
-        console.log('getCard');
-        var val = cardValue[getRandomInt(0, 13)];
-        var suit = suitValue[getRandomInt(0, 4)];
+    function letterDesignator(v) {
+        if (v <= 15) return 'B';
+        if (v <= 30) return 'I';
+        if (v <= 45) return 'N';
+        if (v <= 60) return 'G';
+        return 'O';
+    }
 
-        return ({val: val, suit: suit})
+    this.generate = function() {
+        var value = randomInt(1, 75);
+        value = letterDesignator(value) + '-' + value;
+
+        return value;
     }
 }
 

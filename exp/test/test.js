@@ -173,6 +173,17 @@ describe('Bingo Rooms', function() {
     });
 });
 
+describe('Bingo Number Geneator', function() {
+
+    var Bingo = new (require('./../js/bingo'))();
+
+    it ('Should return a number', function(done) {
+
+        var val = Bingo.generate();
+        assert.notEqual(val,null);
+        done();
+    })
+});
 /*
 describe("Websocket: ", function() {
 
