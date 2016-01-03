@@ -24,25 +24,44 @@
     justify-content: space-between;
     padding: 0 10px;
     background-color: ghostwhite;
-    cursor: pointer;
-
 }
+
+#sc ul>.divactive {
+    background-color: #c8e5bc;
+}
+
 
 #sc ul li {
     padding: 10px;
-    /*background-color: ghostwhite;*/
+    /*background-color: #1b6d85;*/
+    flex: 2;
+    cursor: pointer;
+}
 
+#sc ul .inner {
+    /*align-self: center;
+    flex: 1 1 auto;*/
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /*background-color: #00b3ee;*/
 }
 
 
 #sc ul>div:hover {
-    background-color: #00d6b2;
+    background-color: #c8e5bc;
 }
 
 
-#sc ul>div>button {
+#sc ul>div button {
     color: black;
+    /*background-color: #2b669a;*/
 }
-#sc ul>div>button[disabled] {
+#sc ul>div button[disabled] {
     color: gray;
+}
+
+#sc ul .inner span {
+    color: red;
 }

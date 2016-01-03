@@ -3,143 +3,75 @@ var action = require('../actions/sampleActions');
 var socketStore = require('../stores/socketIDStore');
 var bingoStore = require('../stores/bingoStore');
 
-var RoomElem = require('./RoomElem');
-var _ = require('lodash');
 
-
+var GameBoard = require('./GameBoard');
+var Lobby = require('./Lobby');
 
 var SampleContainer = React.createClass({
 
-    getInitialState: function () {
+    getInitialState() {
         return {
-            sid: '',
-            userName: 'Nick',
-            rooms: []
-        };
+            status: '',
+            sid: ''
+        }
     },
 
-    componentDidMount: function () {
+    componentDidMount: function() {
+        console.log('Sample Container mount');
         socketStore.addChangeListener(this._wsCB);
-        bingoStore.addChangeListener(this._bingoCB);
-        bingoStore.joinListener(this._joinCB);
-        bingoStore.leaveListener(this._leaveCB);
+        bingoStore.statusListener(this._statusCB);
+
         action.componentReady();
 
     },
 
-    componentWillUnmount: function () {
+    componentWillUnmount: function() {
+        console.log('Sample Container unmount');
         socketStore.removeChangeListener(this._wsCB);
+        bingoStore.statusRemoveListener(this._statusCB);
 
-        bingoStore.addChangeListener(this._bingoCB);
-        bingoStore.joinRemoveListener(this._joinCB);
-        bingoStore.leaveRemoveListener(this._leaveCB);
+
     },
 
     _wsCB: function () {
-        this.state.sid = socketStore.getID();
+        this.setState({
+            sid: socketStore.getID()
+        });
     },
 
-    _bingoCB: function () {
-        var rooms = bingoStore.getRooms();
+    statusHandler: function(status) {
 
-        var newRooms = rooms.map(function (elem) {
-            return ({room: elem, disabled: true});
-        });
+        console.log('statusHandler: ' + status);
 
         this.setState({
-            rooms: newRooms
+            status: status
         });
 
     },
 
-    registerRoom: function (enabled) {
-        var room = bingoStore.getCurrentRoom();
+    _statusCB: function() {
 
-        var i = _.findIndex(this.state.rooms, function (elem) {
-            return (elem.room === room);
-        });
-
-
-        if (i < 0) {
-            console.log('registerRoom (enabled, name) ' + enabled + ',' + room);
-            return;
-        }
-
-        var rooms = this.state.rooms;
-        rooms[i].disabled = !enabled;
+        var status = bingoStore.getStatus();
         this.setState({
-            rooms: rooms
+            status: status
         });
-    },
 
-    _joinCB: function () {
-        this.registerRoom(true);
-    },
+       /* if (status === 'Draw Done') {
+            //action.clearGame();
 
-    _leaveCB: function () {
-        this.registerRoom(false);
-    },
-
-    /*liClick: function(index, event) {
-
-     /!*console.log(index);
-     console.log(event.target);
-     console.log(event.currentTarget);*!/
-     },*/
-
-    press: function () {
-        action.getRooms();
-    },
-
-    roomClick: function (i) {
-
-        var roomName = this.state.rooms[i].room;
-        var currentRoom = bingoStore.getCurrentRoom();
-
-        if (roomName !== currentRoom) {
-            action.leaveRoom(currentRoom, this.state.sid);
-            this._leaveCB();
-
-            action.joinRoom(roomName, this.state.userName, this.state.sid);
-        } else {
-            console.log('same room.  no leave/join performed.');
-        }
-
-    },
-
-    readyClick: function(i, event) {
-        event.stopPropagation();
-        var roomName = this.state.rooms[i].room;
-
-        action.readyToPlay(roomName, this.state.sid, true);
+        }*/
     },
 
     render: function () {
 
-        if (this.state.rooms.length) {
-
-            var rooms = this.state.rooms.map(function (item, i) {
-
-                var disabled = '';
-                if (item.disabled) {
-                    disabled = 'disabled';
-                }
-
-                return (
-                    <RoomElem key={i} handler={this.roomClick.bind(this, i)} readyHandler={this.readyClick.bind(this, i)} disabled={disabled}>{item.room}</RoomElem>
-                );
-
-            }.bind(this));
+        if (this.state.status==='Starting') {
+            return (
+                <GameBoard>Board</GameBoard>
+            );
         }
 
         return (
-            <div id="sc">
-                <h3>BINGO WORLD</h3>
-                <button onClick={this.press}>Check Rooms</button>
-                <ul>
-                    {rooms}
-                </ul>
-            </div>
+            <Lobby sid={this.state.sid} status={this.state.status}>Lobby</Lobby>
         );
     }
 

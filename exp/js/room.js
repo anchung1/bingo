@@ -1,6 +1,5 @@
 var _ = require('lodash');
-var Log = require('./log');
-var logger = new Log('testlog.log');
+var logger = require('./log');
 
 
 function Rooms() {
@@ -27,6 +26,12 @@ function Rooms() {
         return rooms[index].name;
     };
 
+    this.getRoom = function(name) {
+        var index = this.name2Index(name);
+        if (index===undefined) {return undefined;}
+        return (rooms[index]);
+    };
+
 
     this.roomList = function() {
         var names = rooms.map(function(elem) {
@@ -40,7 +45,7 @@ function Rooms() {
 
         var index = this.name2Index(name);
         if (index===undefined) {
-            //logger.log('invalid room name: ' + name);
+            logger.log('invalid room name: ' + name);
             return null;
         }
 
@@ -51,41 +56,41 @@ function Rooms() {
 
         if (sindex >=0 ) {
             //user exists
-            //logger.log('user exists: ' + sid);
+            logger.log('user exists: ' + sid);
             return null;
         }
 
-        //logger.log('join (name, username, sid): ' + name + ',' + username + ',' + sid);
+        logger.log('join (name, username, sid): ' + name + ',' + username + ',' + sid);
 
-        roomElem.socketList.push({name: name, user: username, sid: sid});
+        roomElem.socketList.push({name: name, user: username, sid: sid, ready: false});
         //console.log(roomElem.socketList);
         return index;
     };
 
-    this.leave = function(roomName, sid) {
+    this.leave = function(sid) {
 
-        var index = this.name2Index(roomName);
-        if (index===undefined) {
-            //logger.log('invalid room name: ' + roomName);
-            return null;
-        }
+        var count = 0;
+        rooms.forEach(function(room) {
+            var removed = _.remove(room.socketList, function(elem) {
+                return (elem.sid === sid);
+            });
 
-        var room = rooms[index];
-
-        var removed = _.remove(room.socketList, function(elem) {
-            return (elem.sid === sid);
+            if (removed.length) {
+                count += removed.length;
+                if (removed[0].ready) room.readyCount--;
+                logger.log('leave (name, sid): ' + room.name + ',' + sid);
+            }
         });
 
         //console.log(room.socketList);
-        //logger.log('leave (name, sid): ' + roomName + ',' + sid);
-        return (removed.length);
+        return (count);
     };
 
     this.showResidents = function(roomName) {
 
         var index = this.name2Index(roomName);
         if (index===undefined) {
-            //logger.log('invalid room name: ' + roomName);
+            logger.log('invalid room name: ' + roomName);
             return null;
         }
 
@@ -96,88 +101,105 @@ function Rooms() {
         return names;
     };
 
-    this.ready = function(roomName, sid, ready) {
-        console.log('room ready');
+    this.ready = function(roomName, sid, ready, nosockets) {
+
+        logger.log('room ready');
         var index = this.name2Index(roomName);
         if (index===undefined) {
-            //logger.log('invalid room name: ' + roomName);
-            console.log('no such room: ' + roomName);
+            logger.log('invalid room name: ' + roomName);
             return null;
         }
 
         var room = rooms[index];
-        console.log(room);
         //check if sid is member of this room
         index = _.findIndex(room.socketList, function(elem) {
-            console.log(elem);
             return (elem.sid === sid);
         });
 
         if (index < 0) {
-            console.log('no such member: ' + sid);
+            logger.log('no such member: ' + sid);
             return null;
         }
 
+
         if (ready) {
-            room.readyCount++;
-            this.setupBroadcast(room);
+            if (room.socketList[index].ready == false) {
+                room.socketList[index].ready = true;
+                room.readyCount++;
+            }
+            this.setupBroadcast(room, sid, nosockets);
         } else {
-            room.readyCount--;
+            if (room.socketList[index].ready == true) {
+                room.socketList[index].ready = false;
+                room.readyCount--;
+            }
         }
-        return 1;
+
+        return true;
     };
 
-    this.setupBroadcast = function(room) {
+    this.setupBroadcast = function(room, sid, nosockets) {
 
-        if (room.readyCount < 2) {
-            return;
-        }
-
-        var values = ['b4', 'i23', 'n40', 'g58', 'o62'];
-        var roomSockets = [];
+        if (nosockets) return;
 
         var global = require('./globalSave');
         var chdlr = global.connHandler;
         var sockets = chdlr.getSockets();
 
+        if (room.readyCount < 2) {
+            logger.log('waiting, more players needed', true);
+            chdlr.sendMessage(sid, 'Waiting', 'More players needed.');
+            return;
+        }
+
+        if (room.readyCount < room.socketList.length) {
+            logger.log('waiting for ready from all players.', true);
+            chdlr.sendMessage(sid, 'Waiting', 'Not all players ready.');
+            return;
+        }
+
 
         room.socketList.forEach(function(elem) {
-             var index = _.findIndex(sockets, function(elem1) {
-                 return (elem1.id === elem.sid);
-             });
-
-            console.log(sockets[index].id);
-            roomSockets.push(sockets[index].socket);
+            chdlr.sendMessage(elem.sid, 'Starting', "In 3 seconds.");
         });
 
-
         var Bingo = new (require('./bingo'))();
-        if (room.readyCount === room.socketList.length) {
-            console.log('starting game');
-            setTimeout(testFnc, 1000, [roomSockets, Bingo, 100]);
-        }
+        logger.log('starting game', true);
+        setTimeout(testFnc, 3000, [chdlr, room.socketList, Bingo, 10]);
 
     };
 
     function testFnc(list) {
 
 
-        var sockets = list[0];
-        var Bingo = list[1];
-        var count = list[2];
+        var chdlr = list[0];
+        var sockets = list[1];
+        var Bingo = list[2];
+        var count = list[3];
 
-        console.log('' + count + ': firing testFnc');
+        logger.log('' + count + ': firing testFnc', true);
 
         var value = Bingo.generate();
+        if (value === null) {
+            logger.log('no more balls', true);
+            return;
+        }
+
         sockets.forEach(function(elem) {
-            elem.emit('test values', value);
+            chdlr.sendMessage(elem.sid, 'Draw', value);
         });
 
         count--;
         if (count > 0) {
-            setTimeout(testFnc, 1000, [sockets, Bingo, count]);
+            setTimeout(testFnc, 1000, [chdlr, sockets, Bingo, count]);
         } else {
-            console.log('testFnc done');
+            setTimeout(function() {
+                sockets.forEach(function(elem) {
+                    chdlr.sendMessage(elem.sid, 'Draw Done', '');
+                });
+                logger.log('Draw done', true);
+            }, 2000);
+
         }
 
     }

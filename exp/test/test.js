@@ -2,6 +2,7 @@ var assert = require('assert');
 var should = require('should');
 var io = require('socket.io-client');
 var fs = require('fs');
+var _ = require('lodash');
 
 var options = {
     'force new connection': true
@@ -9,19 +10,13 @@ var options = {
 
 
 describe('Log: ', function() {
-
     var logfile = './test/testlog.log';
-    var logger = new (require('./../js/log'))(logfile, true);
-    var logstr1 = 'baby ';
-    var logstr2 = 'it\'s cold outside.';
+    var logger = require('./../js/log');
+    var logstr2 = 'Baby it\'s cold outside.';
 
-    it ('Log object should have filename', function(done) {
-        assert.equal(logfile, logger.getFileName());
-        done();
-    });
 
-    it ('Log file should exist', function(done) {
-        logger.log(logstr1);
+    it ('Should create a file', function(done) {
+        logger.create(logfile);
         logger.log(logstr2);
 
         fs.stat(logfile, function(err, stats) {
@@ -39,34 +34,27 @@ describe('Log: ', function() {
             done();
 
         });
-
     });
 
     it ('Should contain baby', function(done) {
+
         fs.readFile(logfile, 'utf8', function(err, data) {
             if (err) {
                 assert.equal(0,1);
                 done();
             }
 
-            var re = new RegExp(logstr1, 'g');
-            var result = data.match(re);
+            //re = /cold outside/g;
+            re = new RegExp(logstr2, 'g');
+            result = data.match(re);
             if (!result) {
                 assert.equal(0,1);
                 done();
-            } else {
-
-                //re = /cold outside/g;
-                re = new RegExp(logstr2, 'g');
-                result = data.match(re);
-                if (!result) {
-                    assert.equal(0,1);
-                    done();
-                }
-
-                assert.equal(1,1);
-                done();
             }
+
+            assert.equal(1,1);
+            done();
+
         })
     });
 
@@ -89,8 +77,46 @@ describe('Log: ', function() {
         })
     });
 
+    it ('Should print string types', function(done) {
+        var output = logger.log('hello');
+        var re = new RegExp('hello', 'g');
+        var result = output.match(re);
+        if (!result) {
+            assert.equal(0,1);
+        } else {
+            assert.equal(1,1);
+        }
+        done();
+    });
+
+    it ('Should print object types', function(done) {
+        var output = logger.log({hello: 'hello', bye: 'bye'});
+
+        var re = new RegExp('hello', 'g');
+        var result = output.match(re);
+        if (!result) {
+            assert.equal(0,1);
+        } else {
+            assert.equal(1,1);
+        }
+        done();
+    });
+
+    it ('Should print array types', function(done) {
+        var output = logger.log(['hello', 'bye']);
+
+        var re = new RegExp('hello', 'g');
+        var result = output.match(re);
+        if (!result) {
+            assert.equal(0,1);
+        } else {
+            assert.equal(1,1);
+        }
+        done();
+    })
 
 });
+
 
 describe("Room: ", function() {
 
@@ -104,7 +130,7 @@ describe("Room: ", function() {
     });
 
     it ('Should leave room Dora', function(done) {
-        var result = rooms.leave('Dora', 'abcd1234');
+        var result = rooms.leave('abcd1234');
         assert.notEqual(null, result);
         done();
     });
@@ -120,19 +146,47 @@ describe("Room: ", function() {
     });
 
     it ('Should have 1 person in room Diego', function(done) {
-        rooms.leave('Diego', 'abcd1234a');
-        rooms.leave('Diego', 'abcd1234b');
+        rooms.leave('abcd1234a');
+        rooms.leave('abcd1234b');
 
         assert.equal(rooms.showResidents('Diego').length, 1);
         done();
     });
 
     it ('Should have no one in room Diego', function(done) {
-        rooms.leave('Diego', 'abcd1234c');
+        rooms.leave('abcd1234c');
 
         assert.equal(rooms.showResidents('Diego').length, 0);
         done();
     });
+
+    it ('Should signal ready', function(done) {
+        rooms.join('Dora', 'Nick1', 'abcd1234');
+        rooms.join('Dora', 'Nick2', 'abcd1235');
+
+        var room = rooms.getRoom('Dora');
+        rooms.ready('Dora', 'abcd1234', true, true);
+        assert.equal(room.readyCount, 1);
+
+        rooms.ready('Dora', 'abcd1234', true, true);
+        assert.equal(room.readyCount, 1);
+
+        rooms.ready('Dora', 'abcd1234', true, true);
+        assert.equal(room.readyCount, 1);
+
+        rooms.ready('Dora', 'abcd1235', true, true);
+        assert.equal(room.readyCount, 2);
+
+        rooms.leave('abcd1234');
+        assert.equal(room.readyCount, 1);
+
+        rooms.leave('abcd1235');
+        assert.equal(room.readyCount, 0);
+        done();
+
+    });
+
+
 });
 
 describe('Sockets: ', function() {
@@ -171,19 +225,63 @@ describe('Bingo Rooms', function() {
         assert.equal(roomList[0], 'Dora');
         done();
     });
+
+
 });
 
 describe('Bingo Number Geneator', function() {
 
-    var Bingo = new (require('./../js/bingo'))();
 
     it ('Should return a number', function(done) {
+
+        var Bingo = new (require('./../js/bingo'))();
 
         var val = Bingo.generate();
         assert.notEqual(val,null);
         done();
-    })
+    });
+
+    it ('Should cover all numbers', function(done) {
+        var Bingo = new (require('./../js/bingo'))();
+
+        var balls = [];
+        for (i=1; i<=75; i++) {
+            if (i>=1 && i<=15) {
+                balls[i-1] = 'B-'+ i;
+            }
+            if (i>15 && i<=30) {
+                balls[i-1] = 'I-'+ i;
+            }
+            if (i>30 && i<=45) {
+                balls[i-1] = 'N-'+ i;
+            }
+            if (i>45 && i<=60) {
+                balls[i-1] = 'G-'+ i;
+            }
+            if (i>60 && i<=75) {
+                balls[i-1] = 'O-'+ i;
+            }
+        }
+
+        //console.log('balls: ' + balls.length);
+
+        for (i=0; i<75; i++) {
+            var value = Bingo.generate();
+            _.remove(balls, function(elem) {
+                return (elem === value);
+            });
+
+        }
+
+        //console.log('balls: ' + balls.length);
+        assert.equal(balls.length, 0);
+        done();
+
+
+    });
 });
+
+
 /*
 describe("Websocket: ", function() {
 

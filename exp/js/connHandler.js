@@ -1,8 +1,5 @@
 var _ = require('lodash');
-var Log = require('./log');
-
-var logger = new Log('testlog.log');
-
+var logger = require('./log');
 
 
 function ConnHandler() {
@@ -47,7 +44,19 @@ function ConnHandler() {
 
     this.getSockets = function() {
         return sockets;
-    }
+    };
+
+
+    this.sendMessage = function(sid, event, value) {
+        var index = _.findIndex(sockets, function(elem) {
+            return (elem.id === sid);
+        });
+
+        if (index < 0) return undefined;
+        var socket = sockets[index].socket;
+        //console.log('emit sendmessage');
+        socket.emit(event, value);
+    };
 }
 
 

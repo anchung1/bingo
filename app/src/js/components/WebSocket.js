@@ -22,9 +22,25 @@ function wsocket(io) {
         console.log('connection count: ' + v);
     });
 
-    socket.on('test values', function(v) {
-        console.log('test values: ' + v);
-    })
+    socket.on('Draw', function(v) {
+        console.log('Draw: ' + v);
+        action.ballDraw(v);
+    });
+
+    socket.on('Waiting', function(v) {
+        console.log('Waiting: ' + v);
+        action.updateRoomStatus('Waiting');
+    });
+
+    socket.on('Starting', function(v) {
+        console.log('Starting: ' + v);
+        action.updateRoomStatus('Starting');
+    });
+
+    socket.on('Draw Done', function(v) {
+        console.log('DrawDone: ' + v);
+        action.updateRoomStatus('Draw Done');
+    });
 }
 
 var socket = new wsocket(io);

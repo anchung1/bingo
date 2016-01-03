@@ -23,6 +23,17 @@ var sampleActions = {
         });
     },
 
+    updateRoomStatus: function(status) {
+        if (AppDispatcher.isDispatching()) {
+            console.log('dispatch active');
+        }
+
+        AppDispatcher.handleAction({
+            actionType: appConstants.ROOM_STATUS,
+            data: status
+        });
+    },
+
     getRooms: function() {
         var url = restUrl + 'api/game/rooms';
 
@@ -40,7 +51,7 @@ var sampleActions = {
     joinRoom: function(roomName, userName, sid) {
         var url = restUrl + 'api/game/rooms';
 
-        console.log('action: ' + roomName);
+        //console.log('action: ' + roomName);
         $.post(url,
             {
                 roomName: roomName,
@@ -56,8 +67,8 @@ var sampleActions = {
         )
     },
 
-    leaveRoom: function(roomName, sid) {
-        var url = restUrl + 'api/game/rooms/' + roomName + '?' + 'sid=' + sid;
+    leaveRoom: function(sid) {
+        var url = restUrl + 'api/game/rooms' + '?' + 'sid=' + sid;
 
         $.ajax(
             {
@@ -68,7 +79,7 @@ var sampleActions = {
             function(data) {
             },
             function() {
-                console.log('unable to leave room: ' + roomName);
+                console.log('unable to leave room');
             }
         )
     },
@@ -88,6 +99,20 @@ var sampleActions = {
                 console.log('Ready not set on server.');
             }
         )
+    },
+
+    ballDraw: function(value) {
+        AppDispatcher.handleAction({
+            actionType: appConstants.BALL_DRAW,
+            data: value
+        });
+    },
+
+    clearGame: function() {
+
+        AppDispatcher.handleAction({
+            actionType: appConstants.CLEAR_GAME,
+        });
     }
 
 

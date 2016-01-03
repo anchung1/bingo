@@ -1,16 +1,27 @@
 var Rooms = new (require('./room'))();
 var global = require('./globalSave');
+var _ = require('lodash');
+var logger = require('./log').create('testlog.log');
 
 //this stores rooms in the module
-console.log('BINGO HEADER');
 global.Rooms = Rooms;
 
 'use strict';
 
 function Bingo() {
 
-    function randomInt(low, high) {
-        return Math.floor(Math.random() * (high-low+1) + low);
+    var bingoBalls = [];
+    init();
+
+    function init() {
+        for (i=0; i<75; i++) {
+            bingoBalls.push(i);
+        }
+    }
+
+    //min inclusive, max exclusive
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
     }
 
     function letterDesignator(v) {
@@ -21,8 +32,22 @@ function Bingo() {
         return 'O';
     }
 
+    this.reset = function() {
+        bingoBalls = [];
+        init();
+    };
+
     this.generate = function() {
-        var value = randomInt(1, 75);
+
+        if (bingoBalls.length == 0) {
+            console.log('no more balls');
+            return null;
+        }
+
+        var value = randomInt(0, bingoBalls.length);
+
+        var removed = bingoBalls.splice(value, 1);
+        value = removed[0] + 1;
         value = letterDesignator(value) + '-' + value;
 
         return value;

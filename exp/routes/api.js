@@ -9,16 +9,18 @@ var Dora = db.Dora;
 var Users = db.Users;
 var Entry = db.Entry;
 
-
+var logger = require('./../js/log');
 
 router.get('/game/rooms', function(req, res, next) {
 
     var global = require('./../js/globalSave');
+
+    logger.log('GET rooms');
     res.json({rooms: global.Rooms.roomList()});
 });
 
 router.post('/game/rooms', function(req, res, next) {
-    console.log('POST game rooms');
+    logger.log('POST game rooms');
     var global = require('./../js/globalSave');
 
     var rooms = global.Rooms;
@@ -27,12 +29,12 @@ router.post('/game/rooms', function(req, res, next) {
 
 });
 
-router.delete('/game/rooms/:roomName', function(req, res, next) {
-    console.log("DELETE game rooms");
+router.delete('/game/rooms', function(req, res, next) {
+    logger.log("DELETE game rooms");
 
     var global = require('./../js/globalSave');
     var rooms = global.Rooms;
-    rooms.leave(req.params.roomName, req.query.sid);
+    rooms.leave(req.query.sid);
 
     res.send('OK');
 });
@@ -43,7 +45,7 @@ router.post('/game', function(req, res, next) {
     var global = require('./../js/globalSave');
     var rooms = global.Rooms;
 
-    console.log('POST game ready: ' + state);
+    logger.log('POST game ready: ' + state);
     if (rooms.ready(req.body.roomName, req.body.sid, state)) {
         res.send('OK');
     } else {

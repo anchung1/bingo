@@ -11,6 +11,7 @@ var _store = {
 
 var addItem = function(id){
     _store.id = id;
+
 };
 
 var socketIDStore = objectAssign({}, EventEmitter.prototype, {
